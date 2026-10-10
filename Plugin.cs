@@ -10,7 +10,7 @@ public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "maxenterme.DeathTimer";
     private const string PluginName = "DeathTimer";
-    private const string PluginVersion = "1.0.0";
+    private const string PluginVersion = "1.0.1";
 
     internal static Plugin Instance { get; private set; } = null!;
     internal new static ManualLogSource Logger => Instance._logger;

@@ -31,6 +31,7 @@ public static class TimerPatches
 
     // Host state
     private static TimerState _state = TimerState.Idle;
+    private static double _startTime;
     private static double _endTime;
     private static float _remainingAtStop;
     private static float _nextKillSweep;
@@ -100,20 +101,39 @@ public static class TimerPatches
 
     private static void UpdateHost()
     {
-        if (!Plugin.Enabled.Value) return;
+        if (!Plugin.Enabled.Value)
+        {
+            // Turned off mid-level (e.g. from an in-game config menu): clear the
+            // timer so nobody sees a countdown that will never kill.
+            if (_state != TimerState.Idle)
+            {
+                _state = TimerState.Idle;
+                Publish();
+            }
+            return;
+        }
 
         switch (_state)
         {
             case TimerState.Idle:
                 if (LevelGenerator.Instance == null || !LevelGenerator.Instance.Generated) return;
                 if (!InMainGameplay()) return;
-                _endTime = Now() + Plugin.TimeLimitSeconds.Value;
+                _startTime = Now();
+                _endTime = _startTime + Plugin.TimeLimitSeconds.Value;
                 _state = TimerState.Running;
                 Publish();
                 Plugin.Logger.LogInfo($"Timer started: {Plugin.TimeLimitSeconds.Value}s");
                 break;
 
             case TimerState.Running:
+                // Follow a time limit changed mid-level (e.g. from an in-game config menu).
+                double endTime = _startTime + Plugin.TimeLimitSeconds.Value;
+                if (endTime != _endTime)
+                {
+                    _endTime = endTime;
+                    Publish();
+                }
+
                 if (Plugin.StopWhenAllExtracted.Value && RoundDirector.instance.allExtractionPointsCompleted)
                 {
                     _remainingAtStop = Mathf.Max(0f, (float)(_endTime - Now()));

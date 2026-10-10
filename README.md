@@ -34,6 +34,11 @@ Configuration file is generated at `BepInEx/config/maxenterme.DeathTimer.cfg` on
 
 Timer settings are read from the host. HUD settings are per player.
 
+All settings can also be changed in-game with [REPOConfig](https://thunderstore.io/c/repo/p/nickklmao/REPOConfig/)
+and take effect immediately: changing `TimeLimitSeconds` moves the running timer's deadline
+(measured from the level start), and turning `Enabled` off clears the current timer
+(turning it back on starts a fresh one).
+
 | Section | Key | Default | Range | Description |
 |---------|-----|---------|-------|-------------|
 | Timer | Enabled | true | - | Kill every player when the time limit runs out |
