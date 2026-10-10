@@ -34,16 +34,26 @@ Configuration file is generated at `BepInEx/config/maxenterme.DeathTimer.cfg` on
 
 Timer settings are read from the host. HUD settings are per player.
 
+The time limit of a level is `BaseSeconds + SecondsPerExtractionPoint × extraction points + map adjustment`
+(at least 10 seconds). Later levels are larger and have more extraction points, so they get more time
+automatically. With the defaults: 1 point = 7:30, 2 points = 10:00, 3 points = 12:30, 4 points = 15:00.
+
 All settings can also be changed in-game with [REPOConfig](https://thunderstore.io/c/repo/p/nickklmao/REPOConfig/)
-and take effect immediately: changing `TimeLimitSeconds` moves the running timer's deadline
+and take effect immediately: changing the time settings moves the running timer's deadline
 (measured from the level start), and turning `Enabled` off clears the current timer
 (turning it back on starts a fresh one).
 
 | Section | Key | Default | Range | Description |
 |---------|-----|---------|-------|-------------|
 | Timer | Enabled | true | - | Kill every player when the time limit runs out |
-| Timer | TimeLimitSeconds | 600 | 10-7200 | Time limit per level in seconds |
+| Timer | BaseSeconds | 300 | 10-7200 | Base time limit per level |
+| Timer | SecondsPerExtractionPoint | 150 | 0-1800 | Seconds added for each extraction point in the level |
 | Timer | StopWhenAllExtracted | true | - | Stop the timer once every extraction point is completed |
+| Map Adjustment | Manor | 0 | -1800-1800 | Seconds added on Headman Manor (negative removes time) |
+| Map Adjustment | Arctic | 0 | -1800-1800 | Seconds added on McJannek Station |
+| Map Adjustment | Wizard | 0 | -1800-1800 | Seconds added on Swiftbroom Academy |
+| Map Adjustment | Museum | 0 | -1800-1800 | Seconds added on Museum of Human Art |
+| Map Adjustment | Other | 0 | -1800-1800 | Seconds added on any other map (e.g. modded maps) |
 | HUD | Enabled | true | - | Show the remaining time |
 | HUD | PositionX | 0 | -1000-1000 | X offset from top center |
 | HUD | PositionY | -10 | -1000-1000 | Y offset from top center |

@@ -1,6 +1,6 @@
 {
   "name": "DeathTimer",
-  "version_number": "1.0.1",
+  "version_number": "1.1.0",
   "website_url": "https://github.com/maxe-repo-mods/DeathTimer",
   "description": "Per-level time limit. When it runs out, every player dies. Host only; players with the mod also see the countdown.",
   "dependencies": [

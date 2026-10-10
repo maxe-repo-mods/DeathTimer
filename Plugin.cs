@@ -10,7 +10,7 @@ public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "maxenterme.DeathTimer";
     private const string PluginName = "DeathTimer";
-    private const string PluginVersion = "1.0.1";
+    private const string PluginVersion = "1.1.0";
 
     internal static Plugin Instance { get; private set; } = null!;
     internal new static ManualLogSource Logger => Instance._logger;
@@ -18,8 +18,16 @@ public class Plugin : BaseUnityPlugin
 
     // Timer (host settings)
     internal static ConfigEntry<bool> Enabled = null!;
-    internal static ConfigEntry<int> TimeLimitSeconds = null!;
+    internal static ConfigEntry<int> BaseSeconds = null!;
+    internal static ConfigEntry<int> SecondsPerExtractionPoint = null!;
     internal static ConfigEntry<bool> StopWhenAllExtracted = null!;
+
+    // Per-map adjustment (host settings)
+    internal static ConfigEntry<int> ManorSeconds = null!;
+    internal static ConfigEntry<int> ArcticSeconds = null!;
+    internal static ConfigEntry<int> WizardSeconds = null!;
+    internal static ConfigEntry<int> MuseumSeconds = null!;
+    internal static ConfigEntry<int> OtherMapSeconds = null!;
 
     // HUD (each player's own display)
     internal static ConfigEntry<bool> HudEnabled = null!;
@@ -36,14 +44,24 @@ public class Plugin : BaseUnityPlugin
             "Timer", "Enabled", true,
             "Kill every player when the level time limit runs out (host only; applies to all players)."
         );
-        TimeLimitSeconds = Config.Bind(
-            "Timer", "TimeLimitSeconds", 600,
-            new ConfigDescription("Time limit per level in seconds", new AcceptableValueRange<int>(10, 7200))
+        BaseSeconds = Config.Bind(
+            "Timer", "BaseSeconds", 300,
+            new ConfigDescription("Base time limit per level in seconds", new AcceptableValueRange<int>(10, 7200))
+        );
+        SecondsPerExtractionPoint = Config.Bind(
+            "Timer", "SecondsPerExtractionPoint", 150,
+            new ConfigDescription("Seconds added for each extraction point in the level", new AcceptableValueRange<int>(0, 1800))
         );
         StopWhenAllExtracted = Config.Bind(
             "Timer", "StopWhenAllExtracted", true,
             "Stop the timer once every extraction point is completed."
         );
+
+        ManorSeconds = BindMapAdjustment("Manor", "Headman Manor");
+        ArcticSeconds = BindMapAdjustment("Arctic", "McJannek Station");
+        WizardSeconds = BindMapAdjustment("Wizard", "Swiftbroom Academy");
+        MuseumSeconds = BindMapAdjustment("Museum", "Museum of Human Art");
+        OtherMapSeconds = BindMapAdjustment("Other", "any other map, e.g. modded maps");
 
         HudEnabled = Config.Bind(
             "HUD", "Enabled", true,
@@ -69,4 +87,10 @@ public class Plugin : BaseUnityPlugin
         new Harmony(PluginGuid).PatchAll(typeof(Plugin).Assembly);
         Logger.LogInfo($"{PluginName} v{PluginVersion} loaded!");
     }
+
+    private ConfigEntry<int> BindMapAdjustment(string key, string mapName) =>
+        Config.Bind(
+            "Map Adjustment", key, 0,
+            new ConfigDescription($"Seconds added (or removed if negative) on {mapName}", new AcceptableValueRange<int>(-1800, 1800))
+        );
 }

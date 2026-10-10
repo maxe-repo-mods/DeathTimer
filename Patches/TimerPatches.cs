@@ -119,15 +119,18 @@ public static class TimerPatches
                 if (LevelGenerator.Instance == null || !LevelGenerator.Instance.Generated) return;
                 if (!InMainGameplay()) return;
                 _startTime = Now();
-                _endTime = _startTime + Plugin.TimeLimitSeconds.Value;
+                _endTime = _startTime + GetTimeLimit();
                 _state = TimerState.Running;
                 Publish();
-                Plugin.Logger.LogInfo($"Timer started: {Plugin.TimeLimitSeconds.Value}s");
+                Plugin.Logger.LogInfo(
+                    $"Timer started: {GetTimeLimit()}s (base {Plugin.BaseSeconds.Value}s"
+                    + $" + {GetExtractionPointCount()} extraction points x {Plugin.SecondsPerExtractionPoint.Value}s"
+                    + $" + map '{GetMapKey()}' {GetMapAdjustment().Value}s)");
                 break;
 
             case TimerState.Running:
-                // Follow a time limit changed mid-level (e.g. from an in-game config menu).
-                double endTime = _startTime + Plugin.TimeLimitSeconds.Value;
+                // Follow settings changed mid-level (e.g. from an in-game config menu).
+                double endTime = _startTime + GetTimeLimit();
                 if (endTime != _endTime)
                 {
                     _endTime = endTime;
@@ -157,6 +160,37 @@ public static class TimerPatches
             KillAllPlayers();
         }
     }
+
+    // Time limit = base + per extraction point + per-map adjustment (at least 10s).
+    private static int GetTimeLimit()
+    {
+        int seconds = Plugin.BaseSeconds.Value
+            + Plugin.SecondsPerExtractionPoint.Value * GetExtractionPointCount()
+            + GetMapAdjustment().Value;
+        return Mathf.Max(10, seconds);
+    }
+
+    private static int GetExtractionPointCount() =>
+        RoundDirector.instance != null ? RoundDirector.instance.extractionPoints : 0;
+
+    // Level asset names look like "Level - Manor".
+    private static string GetMapKey()
+    {
+        var level = RunManager.instance != null ? RunManager.instance.levelCurrent : null;
+        if (level == null) return "";
+        const string prefix = "Level - ";
+        return level.name.StartsWith(prefix) ? level.name.Substring(prefix.Length) : level.name;
+    }
+
+    private static BepInEx.Configuration.ConfigEntry<int> GetMapAdjustment() =>
+        GetMapKey().ToLowerInvariant() switch
+        {
+            "manor" => Plugin.ManorSeconds,
+            "arctic" => Plugin.ArcticSeconds,
+            "wizard" => Plugin.WizardSeconds,
+            "museum" => Plugin.MuseumSeconds,
+            _ => Plugin.OtherMapSeconds
+        };
 
     private static void KillAllPlayers()
     {
