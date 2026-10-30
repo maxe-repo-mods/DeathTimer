@@ -38,7 +38,7 @@ The time limit of a level is `BaseSeconds + SecondsPerExtractionPoint × extract
 (at least 10 seconds). Later levels are larger and have more extraction points, so they get more time
 automatically. With the defaults: 1 point = 7:30, 2 points = 10:00, 3 points = 12:30, 4 points = 15:00.
 
-All settings can also be changed in-game with [REPOConfig](https://thunderstore.io/c/repo/p/nickklmao/REPOConfig/)
+All settings can also be changed in-game with [REPOConfig](https://thunderstore.io/c/repo/p/REPOModding/REPOConfig/)
 and take effect immediately: changing the time settings moves the running timer's deadline
 (measured from the level start), and turning `Enabled` off clears the current timer
 (turning it back on starts a fresh one).
